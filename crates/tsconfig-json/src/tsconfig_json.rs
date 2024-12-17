@@ -17,13 +17,13 @@ pub struct TsConfigJson {
     pub compiler_options: Option<CompilerOptions>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub include: Option<Vec<PathOrGlob>>,
+    pub include: Option<Vec<CompilerPath>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub exclude: Option<Vec<PathOrGlob>>,
+    pub exclude: Option<Vec<CompilerPath>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub files: Option<Vec<PathBuf>>,
+    pub files: Option<Vec<CompilerPath>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub references: Option<Vec<ProjectReference>>,
@@ -69,13 +69,13 @@ impl TsConfigJson {
 
         if let Some(files) = &mut self.files {
             for path in files.iter_mut() {
-                *path = replace_path_config_dir(path, source_dir, target_dir);
+                path.expand(source_dir, target_dir);
             }
         }
 
         if let Some(references) = &mut self.references {
             for reference in references.iter_mut() {
-                reference.path = source_dir.join(&reference.path).clean();
+                reference.path.expand(source_dir, target_dir);
             }
         }
     }
@@ -149,7 +149,7 @@ impl TsConfigJson {
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 pub struct ProjectReference {
-    pub path: PathBuf,
+    pub path: CompilerPath,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prepend: Option<bool>,

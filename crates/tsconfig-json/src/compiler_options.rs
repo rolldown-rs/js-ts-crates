@@ -5,12 +5,13 @@ use indexmap::IndexMap;
 use rustc_hash::{FxHashMap, FxHasher};
 use serde::{Deserialize, Deserializer};
 use std::hash::BuildHasherDefault;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 // Note: We only support fields that are extremely common.
 // Everything else can be accessed with `other_fields`.
 
-pub type CompilerOptionsPathsMap = IndexMap<String, Vec<PathOrGlob>, BuildHasherDefault<FxHasher>>;
+pub type CompilerOptionsPathsMap =
+    IndexMap<String, Vec<CompilerPath>, BuildHasherDefault<FxHasher>>;
 
 // https://www.typescriptlang.org/tsconfig#compilerOptions
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
@@ -21,7 +22,7 @@ pub struct CompilerOptions {
     pub allow_js: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub base_url: Option<PathBuf>,
+    pub base_url: Option<CompilerPath>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub composite: Option<bool>,
@@ -30,7 +31,7 @@ pub struct CompilerOptions {
     pub custom_conditions: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub declaration_dir: Option<PathBuf>,
+    pub declaration_dir: Option<CompilerPath>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub declaration_map: Option<bool>,
@@ -93,10 +94,10 @@ pub struct CompilerOptions {
     pub no_emit: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub out_dir: Option<PathBuf>,
+    pub out_dir: Option<CompilerPath>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub out_file: Option<PathBuf>,
+    pub out_file: Option<CompilerPath>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub paths: Option<CompilerOptionsPathsMap>,
@@ -117,10 +118,10 @@ pub struct CompilerOptions {
     pub resolve_package_json_imports: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub root_dir: Option<PathBuf>,
+    pub root_dir: Option<CompilerPath>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub root_dirs: Option<Vec<PathBuf>>,
+    pub root_dirs: Option<Vec<CompilerPath>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub skip_lib_check: Option<bool>,
@@ -135,7 +136,7 @@ pub struct CompilerOptions {
     pub target: Option<TargetField>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub type_roots: Option<Vec<PathBuf>>,
+    pub type_roots: Option<Vec<CompilerPath>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub types: Option<Vec<String>>,
@@ -161,19 +162,19 @@ impl CompilerOptions {
     // https://github.com/microsoft/TypeScript/issues/57485#issuecomment-2027787456
     pub fn expand(&mut self, source_dir: &Path, target_dir: &Path) {
         if let Some(path) = &mut self.base_url {
-            *path = replace_path_config_dir(path, source_dir, target_dir);
+            path.expand(source_dir, target_dir);
         }
 
         if let Some(path) = &mut self.declaration_dir {
-            *path = replace_path_config_dir(path, source_dir, target_dir);
+            path.expand(source_dir, target_dir);
         }
 
         if let Some(path) = &mut self.out_dir {
-            *path = replace_path_config_dir(path, source_dir, target_dir);
+            path.expand(source_dir, target_dir);
         }
 
         if let Some(path) = &mut self.out_file {
-            *path = replace_path_config_dir(path, source_dir, target_dir);
+            path.expand(source_dir, target_dir);
         }
 
         if let Some(paths) = &mut self.paths {
@@ -185,18 +186,18 @@ impl CompilerOptions {
         }
 
         if let Some(path) = &mut self.root_dir {
-            *path = replace_path_config_dir(path, source_dir, target_dir);
+            path.expand(source_dir, target_dir);
         }
 
         if let Some(paths) = &mut self.root_dirs {
             for path in paths.iter_mut() {
-                *path = replace_path_config_dir(path, source_dir, target_dir);
+                path.expand(source_dir, target_dir);
             }
         }
 
         if let Some(paths) = &mut self.type_roots {
             for path in paths.iter_mut() {
-                *path = replace_path_config_dir(path, source_dir, target_dir);
+                path.expand(source_dir, target_dir);
             }
         }
     }
