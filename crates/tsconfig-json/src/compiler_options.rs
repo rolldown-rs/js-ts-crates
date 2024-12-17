@@ -411,6 +411,7 @@ pub enum TargetField {
     Es2020,
     Es2021,
     Es2022,
+    Es2024,
     EsNext,
 }
 
@@ -434,6 +435,7 @@ impl<'de> Deserialize<'de> for TargetField {
             "es2020" => Self::Es2020,
             "es2021" => Self::Es2021,
             "es2022" => Self::Es2022,
+            "es2024" => Self::Es2024,
             _ => Self::EsNext,
         })
     }
