@@ -4,7 +4,7 @@ use serde::Deserialize;
 use std::ops::Deref;
 use std::path::PathBuf;
 
-pub type TypeId = u16;
+pub type TypeId = u32;
 
 #[derive(Clone, Debug, Default, Deserialize, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
@@ -37,10 +37,10 @@ pub struct TypesEvent {
     pub conditional_extends_type: Option<TypeId>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conditional_true_type: Option<i16>,
+    pub conditional_true_type: Option<i32>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub conditional_false_type: Option<i16>,
+    pub conditional_false_type: Option<i32>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub constraint_type: Option<TypeId>,
