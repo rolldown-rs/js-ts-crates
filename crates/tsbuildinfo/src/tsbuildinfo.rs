@@ -62,6 +62,16 @@ pub struct TsBuildInfo {
     pub version: String,
 }
 
+impl TsBuildInfo {
+    pub fn get_file_from_id(&self, id: FileId) -> PathBuf {
+        self.program
+            .file_names
+            .get((id - 1) as usize)
+            .unwrap()
+            .to_path_buf()
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq)]
 #[cfg_attr(feature = "serialize", derive(serde::Serialize))]
 #[serde(untagged)]

@@ -1,6 +1,6 @@
 use crate::LockfileDependency;
 use rustc_hash::FxHashMap;
-use yarn_lock_parser::{parse_str, Entry};
+use yarn_lock_parser::parse_str;
 
 pub use yarn_lock_parser::YarnLockError;
 
@@ -8,9 +8,10 @@ pub struct YarnLock;
 
 impl YarnLock {
     pub fn parse<T: AsRef<str>>(content: T) -> Result<Vec<LockfileDependency>, YarnLockError> {
-        let entries: Vec<Entry> = parse_str(content.as_ref())?;
+        let lockfile = parse_str(content.as_ref())?;
 
-        Ok(entries
+        Ok(lockfile
+            .entries
             .into_iter()
             .map(|entry| LockfileDependency {
                 name: entry.name.to_owned(),

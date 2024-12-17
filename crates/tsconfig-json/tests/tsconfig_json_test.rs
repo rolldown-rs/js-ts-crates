@@ -1,6 +1,5 @@
 use starbase_sandbox::create_empty_sandbox;
-use std::path::PathBuf;
-use typescript_tsconfig_json::{ExtendsField, PathOrGlob, TsConfigExtendsChain, TsConfigJson};
+use typescript_tsconfig_json::{CompilerPath, ExtendsField, TsConfigExtendsChain, TsConfigJson};
 
 #[test]
 fn handles_path_types() {
@@ -17,14 +16,14 @@ fn handles_path_types() {
         tsconfig,
         TsConfigJson {
             include: Some(vec![
-                PathOrGlob::Path("file.ts".into()),
-                PathOrGlob::Glob("dir/**/*".into()),
+                CompilerPath::from("file.ts"),
+                CompilerPath::from("dir/**/*"),
             ]),
             exclude: Some(vec![
-                PathOrGlob::Glob("file.tsx?".into()),
-                PathOrGlob::Path("dir".into()),
+                CompilerPath::from("file.tsx?"),
+                CompilerPath::from("dir")
             ]),
-            files: Some(vec![PathBuf::from("file.tsx")]),
+            files: Some(vec![CompilerPath::from("file.tsx")]),
             ..Default::default()
         }
     );
@@ -169,7 +168,7 @@ mod extends_chain {
                 TsConfigExtendsChain {
                     path: sandbox.path().join("tsconfig.1.json"),
                     config: TsConfigJson {
-                        include: Some(vec![PathOrGlob::Glob("dir/**/*".into())]),
+                        include: Some(vec![CompilerPath::from("dir/**/*")]),
                         ..TsConfigJson::default()
                     }
                 },
@@ -177,7 +176,7 @@ mod extends_chain {
                     path: sandbox.path().join("tsconfig.json"),
                     config: TsConfigJson {
                         extends: Some(ExtendsField::Single("./tsconfig.1.json".into())),
-                        include: Some(vec![PathOrGlob::Path("file.tsx".into())]),
+                        include: Some(vec![CompilerPath::from("file.tsx")]),
                         ..TsConfigJson::default()
                     }
                 }
@@ -204,14 +203,14 @@ mod extends_chain {
                 TsConfigExtendsChain {
                     path: sandbox.path().join("tsconfig.1.json"),
                     config: TsConfigJson {
-                        include: Some(vec![PathOrGlob::Glob("dir/**/*".into())]),
+                        include: Some(vec![CompilerPath::from("dir/**/*")]),
                         ..TsConfigJson::default()
                     }
                 },
                 TsConfigExtendsChain {
                     path: sandbox.path().join("tsconfig.2.json"),
                     config: TsConfigJson {
-                        exclude: Some(vec![PathOrGlob::Glob("build/**/*".into())]),
+                        exclude: Some(vec![CompilerPath::from("build/**/*")]),
                         ..TsConfigJson::default()
                     }
                 },
@@ -222,7 +221,7 @@ mod extends_chain {
                             "./tsconfig.1.json".into(),
                             "./tsconfig.2.json".into()
                         ])),
-                        include: Some(vec![PathOrGlob::Path("file.tsx".into())]),
+                        include: Some(vec![CompilerPath::from("file.tsx")]),
                         ..TsConfigJson::default()
                     }
                 },

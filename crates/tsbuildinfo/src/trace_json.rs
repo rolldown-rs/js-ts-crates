@@ -14,7 +14,7 @@ pub enum TraceEventType {
     #[serde(rename = "X")]
     Complete,
     #[default]
-    #[serde(rename = "i")]
+    #[serde(rename = "i", alias = "I")]
     Instant,
     #[serde(rename = "C")]
     Counter,
